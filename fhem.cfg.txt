@@ -1,0 +1,9 @@
+define NETIO_Garten ECMD telnet 192.168.20.15:2701
+attr NETIO_Garten classdefs VALVES=/opt/fhem/valves.classdef
+attr NETIO_Garten room Interfaces
+define Valve1 ECMDDevice VALVES 32 1
+attr Valve1 IODev NETIO_Garten
+attr Valve1 room Interfaces
+define Valve2 ECMDDevice VALVES 32 2
+attr Valve2 IODev NETIO_Garten
+attr Valve2 room Interfaces

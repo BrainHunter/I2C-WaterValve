@@ -1,0 +1,24 @@
+# Übergabeparameter I2C ID
+params i2cID valveId
+# Umsetzung in ECMD Befehle
+# VentilStatus:
+get status cmd {"i2c rbd %i2cID 0\n"}
+get status expect "0x[\da-fA-F]+\n"
+get status postproc {(hex(trim("$_")) >> %valveId-1) & 1; }
+#
+# valve time:
+get valve_time cmd {"i2c rbd %i2cID %valveId\n"}
+get valve_time expect "0x[\da-fA-F]+\n"
+get valve_time postproc {hex(trim("$_"));}
+set valve_time params Value
+set valve_time cmd {sprintf("i2c wbd %i2cID %valveId %02x\n", %Value);}
+set valve_time expect "0x[\da-fA-F]+\n"
+set valve_time postproc {unpack("S", pack("n",hex(trim("$_"))));}
+#
+set off cmd {"i2c wbd %i2cID %valveId 0\n"}
+set off expect "0x00\n"
+set off postproc {s/([0x00\n|;]*)/success/; "$_" eq "success" ? "ok" : "error";}
+#
+set on cmd {"i2c wbd %i2cID %valveId FF\n"}
+set on expect "0xFF\n"
+set on postproc {s/([0xFF\n|;]*)/success/; "$_" eq "success" ? "ok" : "error";}
