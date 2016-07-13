@@ -1,4 +1,4 @@
-# Übergabeparameter I2C ID
+# Ãœbergabeparameter I2C ID
 params i2cID valveId
 # Umsetzung in ECMD Befehle
 # VentilStatus:
@@ -13,7 +13,7 @@ get valve_time postproc {hex(trim("$_"));}
 set valve_time params Value
 set valve_time cmd {sprintf("i2c wbd %i2cID %valveId %02x\n", %Value);}
 set valve_time expect "0x[\da-fA-F]+\n"
-set valve_time postproc {unpack("S", pack("n",hex(trim("$_"))));}
+set valve_time postproc {hex(trim("$_"));}
 #
 set off cmd {"i2c wbd %i2cID %valveId 0\n"}
 set off expect "0x00\n"

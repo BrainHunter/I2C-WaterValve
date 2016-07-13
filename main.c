@@ -63,7 +63,7 @@ Version.
 // 6		| RW	| Valve 6 Time
 
 //------ Configuration -------//
-#define I2C_ADDRESS 0x20
+#define I2C_ADDRESS 0x40
 
 #define NUMOPENVALVES	2
 

@@ -1,9 +1,108 @@
 define NETIO_Garten ECMD telnet 192.168.20.15:2701
 attr NETIO_Garten classdefs VALVES=/opt/fhem/valves.classdef
 attr NETIO_Garten room Interfaces
-define Valve1 ECMDDevice VALVES 32 1
-attr Valve1 IODev NETIO_Garten
-attr Valve1 room Interfaces
-define Valve2 ECMDDevice VALVES 32 2
-attr Valve2 IODev NETIO_Garten
-attr Valve2 room Interfaces
+
+#Valve defines
+define Garten_Valve1 ECMDDevice VALVES 32 1
+attr Garten_Valve1 IODev NETIO_Garten
+attr Garten_Valve1 devStateIcon on|1:on:on off|0:off:off
+attr Garten_Valve1 eventMap /valve_time 30:5min/valve_time 60:10min/valve_time 90:15min/
+attr Garten_Valve1 room Garten
+attr Garten_Valve1 webCmd on:off:5min:10min:15min
+
+define Garten_Valve2 ECMDDevice VALVES 32 2
+attr Garten_Valve2 IODev NETIO_Garten
+attr Garten_Valve2 devStateIcon on|1:on:on off|0:off:off
+attr Garten_Valve2 eventMap /valve_time 30:5min/valve_time 60:10min/valve_time 90:15min/
+attr Garten_Valve2 room Garten
+attr Garten_Valve2 webCmd on:off:5min:10min:15min
+
+define Garten_Valve3 ECMDDevice VALVES 32 3
+attr Garten_Valve3 IODev NETIO_Garten
+attr Garten_Valve3 devStateIcon on|1:on:on off|0:off:off
+attr Garten_Valve3 eventMap /valve_time 30:5min/valve_time 60:10min/valve_time 90:15min/
+attr Garten_Valve3 room Garten
+attr Garten_Valve3 verbose 1
+attr Garten_Valve3 webCmd on:off:5min:10min:15min
+
+define Garten_Valve4 ECMDDevice VALVES 32 4
+attr Garten_Valve4 IODev NETIO_Garten
+attr Garten_Valve4 devStateIcon on|1:on:on off|0:off:off
+attr Garten_Valve4 eventMap /valve_time 30:5min/valve_time 60:10min/valve_time 90:15min/
+attr Garten_Valve4 room Garten
+attr Garten_Valve4 verbose 1
+attr Garten_Valve4 webCmd on:off:5min:10min:15min
+
+define Garten_Valve5 ECMDDevice VALVES 32 5
+attr Garten_Valve5 IODev NETIO_Garten
+attr Garten_Valve5 devStateIcon on|1:on:on off|0:off:off
+attr Garten_Valve5 eventMap /valve_time 30:5min/valve_time 60:10min/valve_time 90:15min/
+attr Garten_Valve5 room Garten
+attr Garten_Valve5 verbose 1
+attr Garten_Valve5 webCmd on:off:5min:10min:15min
+
+define Garten_Valve6 ECMDDevice VALVES 32 6
+attr Garten_Valve6 IODev NETIO_Garten
+attr Garten_Valve6 devStateIcon on|1:on:on off|0:off:off
+attr Garten_Valve6 eventMap /valve_time 30:5min/valve_time 60:10min/valve_time 90:15min/
+attr Garten_Valve6 room Garten
+attr Garten_Valve6 verbose 1
+attr Garten_Valve6 webCmd on:off:5min:10min:15min
+
+#get status every 5 mins
+define at_Garten_Valve1 at +*00:05 get Garten_Valve1 valve_time;; sleep 1 quiet;; get Garten_Valve1 status
+attr at_Garten_Valve1 room Garten
+attr at_Garten_Valve1 verbose 1
+
+define at_Garten_Valve2 at +*00:05 get Garten_Valve2 valve_time;; sleep 1 quiet;; get Garten_Valve2 status
+attr at_Garten_Valve2 room Garten
+attr at_Garten_Valve2 verbose 1
+
+define at_Garten_Valve3 at +*00:05 get Garten_Valve3 valve_time;; sleep 1 quiet;; get Garten_Valve3 status
+attr at_Garten_Valve3 room Garten
+attr at_Garten_Valve3 verbose 1
+
+define at_Garten_Valve4 at +*00:05 get Garten_Valve4 valve_time;; sleep 1 quiet;; get Garten_Valve4 status
+attr at_Garten_Valve4 room Garten
+attr at_Garten_Valve4 verbose 1
+
+define at_Garten_Valve5 at +*00:05 get Garten_Valve5 valve_time;; sleep 1 quiet;; get Garten_Valve5 status
+attr at_Garten_Valve5 room Garten
+attr at_Garten_Valve5 verbose 1
+
+define at_Garten_Valve6 at +*00:05 get Garten_Valve6 valve_time;; sleep 1 quiet;; get Garten_Valve6 status
+attr at_Garten_Valve6 room Garten
+attr at_Garten_Valve6 verbose 1
+
+#timers
+define at_Garten_Valve1_on at *18:01 set Garten_Valve1 10min
+attr at_Garten_Valve1_on room Garten
+
+define at_Garten_Valve2_on at *18:01:20 set Garten_Valve2 10min
+attr at_Garten_Valve2_on room Garten
+
+define at_Garten_Valve3_on at *18:01:40 set Garten_Valve3 15min
+attr at_Garten_Valve3_on room Garten
+
+define at_Garten_Valve4_on at *18:02:00 set Garten_Valve4 15min
+attr at_Garten_Valve4_on room Garten
+
+
+# Doifs for safety... 
+define Garten_Valve1_DOIF DOIF ([Garten_Valve1:valve_time] eq 255) (set Garten_Valve1 off)
+attr Garten_Valve1_DOIF room Garten
+
+define Garten_Valve2_DOIF DOIF ([Garten_Valve2:valve_time] eq 255) (set Garten_Valve2 off)
+attr Garten_Valve2_DOIF room Garten
+
+define Garten_Valve3_DOIF DOIF ([Garten_Valve3:valve_time] eq 255) (set Garten_Valve3 off)
+attr Garten_Valve3_DOIF room Garten
+
+define Garten_Valve4_DOIF DOIF ([Garten_Valve4:valve_time] eq 255) (set Garten_Valve4 off)
+attr Garten_Valve4_DOIF room Garten
+
+define Garten_Valve5_DOIF DOIF ([Garten_Valve5:valve_time] eq 255) (set Garten_Valve5 off)
+attr Garten_Valve5_DOIF room Garten
+
+define Garten_Valve6_DOIF DOIF ([Garten_Valve6:valve_time] eq 255) (set Garten_Valve6 off)
+attr Garten_Valve6_DOIF room Garten
