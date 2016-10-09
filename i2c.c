@@ -13,6 +13,7 @@ modified to use USI_Buffer as "register"
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "i2c.h"
+#include <util/delay.h>
 
 #define __attiny2313__
 
@@ -96,6 +97,7 @@ SIGNAL(SIG_USI_OVERFLOW) {
 		break;				
 	case ACK_PR_RX:																				// Receiving
 		DDR_USI  &= ~(1<<PORT_USI_SDA);
+		_delay_us(5);
 		COMM_STATUS = BYTE_RX;
 		break;
 	case BYTE_RX:
@@ -119,6 +121,7 @@ SIGNAL(SIG_USI_OVERFLOW) {
 		USI_DATA = USI_Buffer[USI_BufferPointer++];
 		/* end Put first byte to transmit in buffer here! USI_DATA = ... */
 		PORT_USI |=  (1<<PORT_USI_SDA); // transparent for shifting data out
+		
 		COMM_STATUS = BYTE_TX;
 		break;
 	case PR_ACK_TX:
@@ -137,6 +140,7 @@ SIGNAL(SIG_USI_OVERFLOW) {
 	case BYTE_TX:							// byte transmitted...
 		DDR_USI  &= ~(1<<PORT_USI_SDA);
 		PORT_USI &= ~(1<<PORT_USI_SDA);
+		_delay_us(5);
 		USI_STATUS = 0x0e;	// reload counter for ACK, (SCL) high and back low
 		COMM_STATUS = PR_ACK_TX;
 		break;

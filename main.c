@@ -30,7 +30,8 @@ Version.
 #include <avr/interrupt.h>
 #include <util/atomic.h>
 #include <stdint.h>
-#include "usiTwiSlave.h"
+//#include "usiTwiSlave.h"
+#include "i2c.h"
 
 //---------  Pinnig: ---------//
 ///// Usi (I2C) Pins: 
@@ -63,7 +64,7 @@ Version.
 // 6		| RW	| Valve 6 Time
 
 //------ Configuration -------//
-#define I2C_ADDRESS 0x40
+#define I2C_ADDRESS 0x20	//0x40
 
 #define NUMOPENVALVES	2
 
@@ -103,6 +104,8 @@ int main(void){
 	// Init the Systimer & I2C...
 	init();
 	
+	#define rxbuffer USI_Buffer
+ 	
 	static uint8_t valveStatus = 0;
 	uint8_t* bufferValveStatus = (uint8_t*)&rxbuffer[0];
 	uint8_t* valveTime = (uint8_t*)&rxbuffer[1];
@@ -225,7 +228,8 @@ void init(){
 	TIMSK |= (1 << OCIE0A);								//Output compare interrupt enable
 
 	// init i2c slave:
-	usiTwiSlaveInit(I2C_ADDRESS);
+	//usiTwiSlaveInit(I2C_ADDRESS);
+	USI_init(I2C_ADDRESS);
 	
 	sei();												// enable Interrupts
 }

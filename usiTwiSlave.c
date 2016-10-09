@@ -16,6 +16,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "usiTwiSlave.h"
+#include <util/delay.h>
 
 //############################################################### device defines
 
@@ -140,6 +141,7 @@
 
 #define SET_USI_TO_SEND_ACK( ) 	{ USIDR = 0; \
 								DDR_USI |= ( 1 << PORT_USI_SDA ); \
+								_delay_us(20);\
 								USISR = ( 0 << USI_START_COND_INT ) | \
 								( 1 << USIOIF ) | ( 1 << USIPF ) | \
 								( 1 << USIDC )| \
@@ -152,6 +154,7 @@
 
 #define SET_USI_TO_READ_ACK( ) 	{ USIDR = 0; \
 								DDR_USI &= ~( 1 << PORT_USI_SDA ); \
+								_delay_us(20);\
 								USISR = ( 0 << USI_START_COND_INT ) | \
 								( 1 << USIOIF) | \
 								( 1 << USIPF ) | \
