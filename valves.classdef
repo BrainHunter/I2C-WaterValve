@@ -11,14 +11,17 @@ get valve_time cmd {"i2c rbd %i2cID %valveId\n"}
 get valve_time expect "0x[\da-fA-F]+\n"
 get valve_time postproc {hex(trim("$_"));}
 set valve_time params Value
-set valve_time cmd {sprintf("i2c wbd %i2cID %valveId %02x\n", %Value);}
+set valve_time cmd {sprintf("i2c wwd %i2cID %valveId %02x%02x\n", %Value, (255-%valveId)^%Value );}		#calc the checksumfor the 2nd byte
 set valve_time expect "0x[\da-fA-F]+\n"
-set valve_time postproc {hex(trim("$_"));}
+#set valve_time postproc {unpack("S", pack("n",hex(trim("$_"))));}
+set valve_time postproc {hex(trim("$_"))>>8;}															#cut off the checksum
+
 #
-set off cmd {"i2c wbd %i2cID %valveId 0\n"}
-set off expect "0x00\n"
-set off postproc {s/([0x00\n|;]*)/success/; "$_" eq "success" ? "ok" : "error";}
+set off cmd {sprintf("i2c wwd %i2cID %valveId 00%02x\n", (255-%valveId)^0 );}
+set off expect "0x[\da-fA-F]+\n"
+set off postproc {s/([0x\da-fA-F\n|;]*)/success/; "$_" eq "success" ? "ok" : "error";}
+
 #
-set on cmd {"i2c wbd %i2cID %valveId FF\n"}
-set on expect "0xFF\n"
-set on postproc {s/([0xFF\n|;]*)/success/; "$_" eq "success" ? "ok" : "error";}
+set on cmd {sprintf("i2c wwd %i2cID %valveId FF%02x\n", (255-%valveId)^0xFF );}
+set on expect "0x[\da-fA-F]+\n"
+set on postproc {s/([0x\da-fA-F\n|;]*)/success/; "$_" eq "success" ? "ok" : "error";}

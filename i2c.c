@@ -52,6 +52,9 @@ volatile uint8_t COMM_STATUS = NONE;
 volatile uint8_t USI_Buffer[USI_BUFFER_SIZE] ={0};
 volatile uint8_t USI_BufferPointer = 0;
 
+volatile uint8_t USI_RXBuffer[2] ={0};
+volatile uint8_t USI_RXBufferPointer = 0;
+
 void USI_init(uint8_t id) {
 	USI_ADDRESS = id;
 
@@ -106,10 +109,29 @@ SIGNAL(SIG_USI_OVERFLOW) {
 		{
 			USI_BufferPointer = USI_DATA;									// first rx byte is the register address
 			firstbyte = 1;
+			if(USI_BufferPointer >= USI_BUFFER_SIZE) 						// protect the memory
+			{
+				USI_BufferPointer =0;
+			}
+			USI_RXBuffer[0]=0;												// Reset the RX Buffer
+			USI_RXBuffer[1]=0;
+			USI_RXBufferPointer = 0;			
 		}
 		else
 		{
-			USI_Buffer[USI_BufferPointer++] = USI_DATA;						// save the received data in the buffer an increment the buffer pointer	
+			//USI_Buffer[USI_BufferPointer++] = USI_DATA;					// save the received data in the buffer an increment the buffer pointer	
+			if(USI_RXBufferPointer <2) 										// limit receivable number of data bytes to 2
+			{	
+				USI_RXBuffer[USI_RXBufferPointer++] = USI_DATA;
+			}
+			if(USI_RXBufferPointer == 2)									// received 2 data bytes
+			{
+				// checksum calc 
+				if( ( ( ((uint8_t)255) - USI_BufferPointer) ^ USI_RXBuffer[0]) == USI_RXBuffer[1])		// (255 - addr)^data == checksum
+				{		
+					USI_Buffer[USI_BufferPointer] = USI_RXBuffer[0];			// data is valid: 
+				}	
+			}
 		}
 		/* end Save received byte here! ... = USI_DATA*/
 		DDR_USI  |=  (1<<PORT_USI_SDA);
@@ -147,5 +169,5 @@ SIGNAL(SIG_USI_OVERFLOW) {
 	}
 	USI_STATUS |= (1<<USIOIF); // clear overflowinterruptflag, this also releases SCL
 	
-	if(USI_BufferPointer == USI_BUFFER_SIZE) USI_BufferPointer = 0;	// prevent buffer overflow and wrap around.
+	if(USI_BufferPointer >= USI_BUFFER_SIZE) USI_BufferPointer = 0;	// prevent buffer overflow and wrap around.
 }
