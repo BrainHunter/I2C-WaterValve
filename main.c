@@ -111,10 +111,12 @@ int main(void){
 	uint8_t* valveTime = (uint8_t*)&rxbuffer[1];
 	static uint32_t testtime = 0; 
 	static uint32_t systime = 0;
+	static uint32_t i2ctime = 0;
 	
 	// Buttons:
 	static uint8_t buttonPressed[6] = {0};
 	static uint32_t buttonTime[6] = {0};
+	
 	
 	//main loop
 	for(;;){
@@ -212,6 +214,39 @@ int main(void){
 			}// END for(uint8_t i=0; i < NUMVALVES; i++)
 		}// END if(timediff(testtime, systime) > 10000)
 		
+		// i2c watchdog: 
+		// SDA = PB5
+		// SCL = PB7	
+		// reset I2C if SDA is Low for a long time
+		// or if i2c comm status changes.
+		extern volatile uint8_t COMM_STATUS;
+		uint8_t old_comm_status = 0; // = NONE
+		#define NONE				0
+		
+		if(PIND & ( 1<<PB5))	// SDA pin is high --> bus is NOT locked
+		{						// --> 
+			i2ctime = systime;	// reset counter! --> no I2C reset!
+		}
+		if(COMM_STATUS != NONE) // only if comm
+		{
+			if(COMM_STATUS != old_comm_status) // comm status changed -->
+			{
+				i2ctime = systime;	// reset counter! 
+				old_comm_status = COMM_STATUS;	//mark the old COMM_Status
+			}
+		}
+		else
+		{	// reset old_comm_status when COMM_Status is NONE
+			old_comm_status = COMM_STATUS;
+		}
+		// Reset I2C if error persits for 100msec
+		if(timediff(i2ctime, systime) > 100) // 100 msec timeout! 
+		{
+			COMM_STATUS = NONE; 	// reset to none
+			USI_init(I2C_ADDRESS);	
+			i2ctime = systime;		// don't do this again in the next loop
+		}
+				
 		//set the valve status in the usi buffer - the buffer can be overwritten by the bus master, but we want this to be "read only" since we don't care about this register. 
 		*bufferValveStatus = valveStatus;
 		

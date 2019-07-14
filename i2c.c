@@ -70,7 +70,7 @@ void USI_init(uint8_t id) {
 }
 
 
-SIGNAL(SIG_USI_START) {
+SIGNAL(USI_START_vect) {
 	uint8_t tmpUSI_STATUS;
 	tmpUSI_STATUS = USI_STATUS;
 	COMM_STATUS = NONE;
@@ -82,7 +82,7 @@ SIGNAL(SIG_USI_START) {
 	USI_CONTROL |= (1<<USIOIE) | (1<<USIWM0);
 }
 
-SIGNAL(SIG_USI_OVERFLOW) {
+SIGNAL(USI_OVERFLOW_vect) {
   uint8_t BUF_USI_DATA = USI_DATA;
   static uint8_t firstbyte = 0;
 	switch(COMM_STATUS) {
